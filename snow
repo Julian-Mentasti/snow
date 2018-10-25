@@ -1,0 +1,40 @@
+#!/bin/bash
+ 
+LINES=$(tput lines)
+COLUMNS=$(tput cols)
+ 
+declare -A snowFlakes
+declare -A droppedFlakes
+ 
+clear
+ 
+function move_flake() {
+i="$1"
+ 
+if [ "${snowFlakes[$i]}" = "" ] || [ "${snowFlakes[$i]}" = "$LINES" ]; then
+snowFlakes[$i]=0
+else
+if [ "${droppedFlakes[$i]}" != "" ]; then
+printf "\033[%s;%sH \033[1;1H " ${droppedFlakes[$i]} $i
+fi
+fi
+ 
+printf "\033[%s;%sH*\033[1;1H" ${snowFlakes[$i]} $i
+ 
+droppedFlakes[$i]=${snowFlakes[$i]}
+snowFlakes[$i]=$((${snowFlakes[$i]}+1))
+}
+ 
+while :
+do
+i=$(($RANDOM % $COLUMNS))
+ 
+move_flake $i
+ 
+for x in "${!droppedFlakes[@]}"
+do
+move_flake "$x"
+done
+ 
+sleep 0.1
+done
