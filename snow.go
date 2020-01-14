@@ -22,22 +22,24 @@ func init() {
 
 func main() {
 	height := tm.Height()
+	height = height - 1
 	width := tm.Width()
 	flakes := []Flake{}
 	rand.Seed(2020)
-	var floorState [width]int
+	floorState := make([]int, width)
 
-	tm.Clear()
 	for {
-		// Update the flake pos
-		for _, f := range flakes {
-			if f.Lock == false {
+		tm.Clear()
 
-				if f.Y == height-floorState[f.X]+1 {
-					floorState[f.X] += 1
-					f.Lock = true
+		// Update the flake pos
+		for i := 0; i < len(flakes); i++ {
+			if flakes[i].Lock == false {
+				if flakes[i].Y >= height-floorState[flakes[i].X]+1 {
+					fmt.Println("Lock!")
+					floorState[flakes[i].X] += 1
+					flakes[i].Lock = true
 				} else {
-					f.Y += 1
+					flakes[i].Y = flakes[i].Y + 1
 				}
 			}
 		}
@@ -46,9 +48,9 @@ func main() {
 
 		flakes = append(flakes, newFlake)
 
-		tm.MoveCursor(1, 1)
 		for _, f := range flakes {
 			tm.Print(tm.MoveTo("*", f.X, f.Y))
+			tm.MoveCursor(1, 1)
 		}
 		tm.Flush()
 		time.Sleep(time.Second)
